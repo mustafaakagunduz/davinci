@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal } from './ui/Modal'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage, type Translations } from '../contexts/LanguageContext'
 import { useUpdateUserMutation } from '../store/api/usersApi'
 import { useEffect } from 'react'
 import { UserIcon, MapPinIcon, PhoneIcon, GlobeAltIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
@@ -19,7 +19,7 @@ interface EditUserModalProps {
 }
 
 // Zod validation schema
-const createUserSchema = (t: any) => z.object({
+const createUserSchema = (t: Translations) => z.object({
     name: z.string().min(1, t.nameRequired),
     username: z.string().min(1, t.usernameRequired),
     email: z.string().email(t.invalidEmail).min(1, t.emailRequired),

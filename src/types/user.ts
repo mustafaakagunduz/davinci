@@ -34,8 +34,8 @@ export interface UserFormData {
 }
 
 // API response types
-export interface CreateUserRequest extends Omit<User, 'id'> {}
-export interface UpdateUserRequest extends Partial<Omit<User, 'id'>> {}
+export type CreateUserRequest = Omit<User, 'id'>
+export type UpdateUserRequest = Partial<Omit<User, 'id'>>
 
 // User list için display type (post count ile birlikte)
 export interface UserWithPostCount extends User {

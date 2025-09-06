@@ -1,6 +1,6 @@
 // src/components/UsersTable.tsx
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useGetUsersQuery, useDeleteUserMutation } from '../store/api/usersApi'
 import { useGetPostsQuery } from '../store/api/postsApi'
 import { EyeIcon, PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
@@ -71,7 +71,7 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
     const currentUsers = filteredUsers?.slice(startIndex, endIndex) || []
 
     // Reset to first page when filter changes
-    useMemo(() => {
+    useEffect(() => {
         setCurrentPage(1)
     }, [filterValue])
 
@@ -109,7 +109,7 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                 setIsDetailModalOpen(false)
                 setSelectedUser(null)
             }
-        } catch (error) {
+        } catch {
             setToast({ message: t.userDeleteError, type: 'error' })
         }
     }

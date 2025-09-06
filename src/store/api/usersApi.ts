@@ -66,11 +66,11 @@ export const usersApi = baseApi.injectEndpoints({
                 let userPatchResult
                 try {
                     userPatchResult = dispatch(
-                        usersApi.util.updateQueryData('getUserById', user.id, (_draft) => {
+                        usersApi.util.updateQueryData('getUserById', user.id, () => {
                             return user
                         })
                     )
-                } catch (e) {
+                } catch {
                     // Cache doesn't exist, that's fine
                     userPatchResult = { undo: () => {} }
                 }

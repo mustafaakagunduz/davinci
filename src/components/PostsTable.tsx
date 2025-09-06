@@ -1,6 +1,6 @@
 // src/components/PostsTable.tsx
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useGetPostsQuery, useDeletePostMutation } from '../store/api/postsApi'
 import { EyeIcon, PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -55,7 +55,7 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
     const currentPosts = filteredPosts?.slice(startIndex, endIndex) || []
 
     // Reset to first page when filter changes
-    useMemo(() => {
+    useEffect(() => {
         setCurrentPage(1)
     }, [filterValue])
 
@@ -78,7 +78,7 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
                 setIsDetailModalOpen(false)
                 setSelectedPost(null)
             }
-        } catch (error) {
+        } catch {
             setToast({ message: t.deleteError, type: 'error' })
         }
     }

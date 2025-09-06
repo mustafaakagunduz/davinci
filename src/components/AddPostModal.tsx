@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal } from './ui/Modal'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage, type Translations } from '../contexts/LanguageContext'
 import { useAddPostMutation, useGetPostsQuery } from '../store/api/postsApi'
 import { useGetUsersQuery } from '../store/api/usersApi'
 import { Toast, type ToastType } from './ui/Toast'
@@ -18,7 +18,7 @@ interface AddPostModalProps {
 }
 
 // Zod validation schema
-const createPostSchema = (t: any) => z.object({
+const createPostSchema = (t: Translations) => z.object({
     userId: z.number().min(1, t.userRequired),
     title: z.string().min(1, t.titleRequired),
     body: z.string().min(1, t.contentRequired),
@@ -122,7 +122,7 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
             setToast({ message: t.postAddSuccess, type: 'success' })
             reset()
             onClose()
-        } catch (error) {
+        } catch {
             setToast({ message: t.postAddError, type: 'error' })
         }
     }

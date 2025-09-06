@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal } from './ui/Modal'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage, type Translations } from '../contexts/LanguageContext'
 import { useUpdatePostMutation } from '../store/api/postsApi'
 import { useGetUsersQuery } from '../store/api/usersApi'
 import { useState, useEffect, useMemo } from 'react'
@@ -21,7 +21,7 @@ interface EditPostModalProps {
 }
 
 // Zod validation schema
-const editPostSchema = (t: any) => z.object({
+const editPostSchema = (t: Translations) => z.object({
     userId: z.number().min(1, t.userRequired),
     title: z.string().min(1, t.titleRequired),
     body: z.string().min(1, t.contentRequired),
@@ -119,7 +119,7 @@ export const EditPostModal = ({ isOpen, onClose, post, isDarkMode = false, onSuc
             if (onSuccess) {
                 onSuccess(t.postUpdateSuccess)
             }
-        } catch (error) {
+        } catch {
             if (onError) {
                 onError(t.postUpdateError)
             }

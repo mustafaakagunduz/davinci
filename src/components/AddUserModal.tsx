@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal } from './ui/Modal'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage, type Translations } from '../contexts/LanguageContext'
 import { useAddUserMutation, useGetUsersQuery } from '../store/api/usersApi'
 import { Toast, type ToastType } from './ui/Toast'
 import { useState, useRef, useEffect } from 'react'
@@ -17,7 +17,7 @@ interface AddUserModalProps {
 }
 
 // Zod validation schema
-const createUserSchema = (t: any) => z.object({
+const createUserSchema = (t: Translations) => z.object({
     name: z.string().min(1, t.nameRequired),
     username: z.string().min(1, t.usernameRequired),
     email: z.string().email(t.invalidEmail).min(1, t.emailRequired),
@@ -134,7 +134,7 @@ export const AddUserModal = ({ isOpen, onClose, isDarkMode = false }: AddUserMod
             setToast({ message: t.userAddSuccess, type: 'success' })
             reset()
             onClose()
-        } catch (error) {
+        } catch {
             setToast({ message: t.userAddError, type: 'error' })
         }
     }

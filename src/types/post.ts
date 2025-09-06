@@ -15,8 +15,8 @@ export interface PostFormData {
 }
 
 // API response types
-export interface CreatePostRequest extends Omit<Post, 'id'> {}
-export interface UpdatePostRequest extends Partial<Omit<Post, 'id'>> {}
+export type CreatePostRequest = Omit<Post, 'id'>
+export type UpdatePostRequest = Partial<Omit<Post, 'id'>>
 
 // Post list için display type (user name ile birlikte)
 export interface PostWithUserName extends Post {
