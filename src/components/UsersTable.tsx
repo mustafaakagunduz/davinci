@@ -1,22 +1,108 @@
 // src/components/UsersTable.tsx
 
-import { useGetUsersQuery } from '../store/api/usersApi'
+import { useMemo, useState } from 'react'
+import { useGetUsersQuery, useDeleteUserMutation } from '../store/api/usersApi'
 import { useGetPostsQuery } from '../store/api/postsApi'
+import { EyeIcon, PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { useLanguage } from '../contexts/LanguageContext'
+import { UserDetailModal } from './UserDetailModal'
+import { DeleteConfirmModal } from './DeleteConfirmModal'
+import { Toast, type ToastType } from './ui/Toast'
+import type { User } from '../types/user'
 
-export const UsersTable = () => {
+interface UsersTableProps {
+    filterValue: string
+    isDarkMode?: boolean
+}
+
+export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps) => {
+    const { t } = useLanguage()
     const { data: users, isLoading, isError, error } = useGetUsersQuery()
     const { data: posts } = useGetPostsQuery()
+    const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation()
+    const [selectedUser, setSelectedUser] = useState<User | null>(null)
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 10
+    
+    // Delete confirmation modal state
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [userToDelete, setUserToDelete] = useState<User | null>(null)
+    
+    // Toast state
+    const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
 
-    // Helper function to get post count for a user
-    const getPostCount = (userId: number) => {
-        if (!posts) return 0
-        return posts.filter(post => post.userId === userId).length
+    // Helper function to get post count for a user (memoized for performance)
+    const getPostCount = useMemo(() => {
+        if (!posts) return () => 0
+        
+        // Post count mapping'i oluştur (her user için)
+        const postCounts: Record<number, number> = {}
+        posts.forEach(post => {
+            postCounts[post.userId] = (postCounts[post.userId] || 0) + 1
+        })
+        
+        return (userId: number) => postCounts[userId] || 0
+    }, [posts])
+
+    // Filter users based on search term
+    const filteredUsers = useMemo(() => {
+        if (!users || !filterValue.trim()) return users
+
+        const searchTerm = filterValue.toLowerCase().trim()
+        
+        return users.filter(user => 
+            user.name.toLowerCase().includes(searchTerm) ||
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.email.toLowerCase().includes(searchTerm)
+        )
+    }, [users, filterValue])
+
+    // Calculate pagination
+    const totalItems = filteredUsers?.length || 0
+    const totalPages = Math.ceil(totalItems / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const currentUsers = filteredUsers?.slice(startIndex, endIndex) || []
+
+    // Reset to first page when filter changes
+    useMemo(() => {
+        setCurrentPage(1)
+    }, [filterValue])
+
+    // Handle delete
+    const handleDeleteClick = (user: User) => {
+        setUserToDelete(user)
+        setIsDeleteModalOpen(true)
+    }
+
+    const handleDeleteConfirm = async () => {
+        if (!userToDelete) return
+
+        try {
+            await deleteUser(userToDelete.id).unwrap()
+            setToast({ message: t.userDeleteSuccess, type: 'success' })
+            setIsDeleteModalOpen(false)
+            setUserToDelete(null)
+            // Detail modal'ı da kapat eğer silinen user açıksa
+            if (selectedUser && selectedUser.id === userToDelete.id) {
+                setIsDetailModalOpen(false)
+                setSelectedUser(null)
+            }
+        } catch (error) {
+            setToast({ message: t.userDeleteError, type: 'error' })
+        }
+    }
+
+    const handleDeleteCancel = () => {
+        setIsDeleteModalOpen(false)
+        setUserToDelete(null)
     }
 
     if (isLoading) {
         return (
             <div className="flex justify-center items-center py-8">
-                <div className="text-lg">Loading users...</div>
+                <div className="text-lg">{t.loadingUsers}</div>
             </div>
         )
     }
@@ -25,7 +111,7 @@ export const UsersTable = () => {
         return (
             <div className="flex justify-center items-center py-8">
                 <div className="text-red-500">
-                    Error loading users: {error && 'status' in error ? error.status : 'Unknown error'}
+                    {t.errorLoadingUsers}: {error && 'status' in error ? error.status : 'Unknown error'}
                 </div>
             </div>
         )
@@ -34,71 +120,229 @@ export const UsersTable = () => {
     if (!users || users.length === 0) {
         return (
             <div className="flex justify-center items-center py-8">
-                <div className="text-gray-500">No users found</div>
+                <div className={`transition-colors duration-200 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>{t.noUsersFound}</div>
+            </div>
+        )
+    }
+
+    if (filteredUsers && filteredUsers.length === 0 && filterValue.trim()) {
+        return (
+            <div className="flex justify-center items-center py-8">
+                <div className={`transition-colors duration-200 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                    {t.noUsersMatching} "{filterValue}"
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
-                <thead className="bg-gray-50">
+        <div>
+            <div className="overflow-x-auto">
+                <table className={`min-w-full border transition-colors duration-200 ${
+                isDarkMode 
+                    ? 'bg-gray-800 border-gray-600' 
+                    : 'bg-white border-gray-200'
+            }`}>
+                <thead className={`transition-colors duration-200 ${
+                    isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
                 <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ID
+                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                    }`}>
+                        {t.id}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
+                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                    }`}>
+                        {t.name}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Username
+                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                    }`}>
+                        {t.username}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
+                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                    }`}>
+                        {t.email}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Post Count
+                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                    }`}>
+                        {t.postCount}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
+                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                    }`}>
+                        {t.actions}
                     </th>
                 </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <tbody className={`divide-y transition-colors duration-200 ${
+                    isDarkMode 
+                        ? 'bg-gray-800 divide-gray-600' 
+                        : 'bg-white divide-gray-200'
+                }`}>
+                {currentUsers.map((user) => (
+                    <tr 
+                        key={user.id} 
+                        className={`cursor-pointer transition-colors duration-200 ${
+                            isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                        }`}
+                        onClick={() => {
+                            setSelectedUser(user)
+                            setIsDetailModalOpen(true)
+                        }}
+                    >
+                        <td className={`px-6 py-2 whitespace-nowrap text-base text-center transition-colors duration-200 ${
+                            isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                        }`}>
                             {user.id}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className={`px-6 py-2 whitespace-nowrap text-base font-normal text-center transition-colors duration-200 ${
+                            isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                        }`}>
                             {user.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className={`px-6 py-2 whitespace-nowrap text-base text-center transition-colors duration-200 ${
+                            isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                        }`}>
                             {user.username}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className={`px-6 py-2 whitespace-nowrap text-base text-center transition-colors duration-200 ${
+                            isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                        }`}>
                             {user.email}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {getPostCount(user.id)}
-                </span>
+                        <td className={`px-6 py-2 whitespace-nowrap text-base text-center transition-colors duration-200 ${
+                            isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                        }`}>
+                            {getPostCount(user.id)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button className="text-blue-600 hover:text-blue-900">
-                                View
+                        <td className="px-6 py-2 whitespace-nowrap text-base font-normal space-x-1 text-center">
+                            <button 
+                                className={`p-2 cursor-pointer transition-colors duration-200 relative z-10 ${
+                                    isDarkMode 
+                                        ? 'text-gray-300 hover:bg-gray-600' 
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedUser(user)
+                                    setIsDetailModalOpen(true)
+                                }}
+                            >
+                                <EyeIcon className="h-5 w-5" />
                             </button>
-                            <button className="text-green-600 hover:text-green-900">
-                                Edit
+                            <button 
+                                className={`p-2 cursor-pointer transition-colors duration-200 relative z-10 ${
+                                    isDarkMode 
+                                        ? 'text-gray-300 hover:bg-gray-600' 
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    // Edit functionality will be implemented later
+                                }}
+                            >
+                                <PencilIcon className="h-5 w-5" />
                             </button>
-                            <button className="text-red-600 hover:text-red-900">
-                                Delete
+                            <button 
+                                className={`p-2 cursor-pointer transition-colors duration-200 relative z-10 ${
+                                    isDarkMode 
+                                        ? 'text-gray-300 hover:bg-gray-600' 
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDeleteClick(user)
+                                }}
+                            >
+                                <TrashIcon className="h-5 w-5" />
                             </button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
-            </table>
+                </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex justify-end items-center mt-4 space-x-2">
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-lg transition-colors duration-200 ${
+                            currentPage === 1
+                                ? 'opacity-50 cursor-not-allowed'
+                                : isDarkMode 
+                                    ? 'hover:bg-gray-700 text-gray-300' 
+                                    : 'hover:bg-gray-100 text-gray-600'
+                        }`}
+                    >
+                        <ChevronLeftIcon className="h-5 w-5" />
+                    </button>
+                    
+                    <span className={`px-3 py-1 text-sm transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
+                        {currentPage} / {totalPages}
+                    </span>
+                    
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-lg transition-colors duration-200 ${
+                            currentPage === totalPages
+                                ? 'opacity-50 cursor-not-allowed'
+                                : isDarkMode 
+                                    ? 'hover:bg-gray-700 text-gray-300' 
+                                    : 'hover:bg-gray-100 text-gray-600'
+                        }`}
+                    >
+                        <ChevronRightIcon className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
+            
+            {/* User Detail Modal */}
+            <UserDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => {
+                    setIsDetailModalOpen(false)
+                    setSelectedUser(null)
+                }}
+                user={selectedUser}
+                isDarkMode={isDarkMode}
+                onDelete={handleDeleteClick}
+            />
+
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={handleDeleteCancel}
+                onConfirm={handleDeleteConfirm}
+                isDarkMode={isDarkMode}
+                isLoading={isDeleting}
+                isUser={true}
+            />
+
+            {/* Toast */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    isVisible={!!toast}
+                    onClose={() => setToast(null)}
+                    isDarkMode={isDarkMode}
+                />
+            )}
         </div>
     )
 }

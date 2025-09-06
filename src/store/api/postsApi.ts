@@ -36,7 +36,24 @@ export const postsApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: newPost,
             }),
-            invalidatesTags: ['Post'],
+            // invalidatesTags kaldırıldı - optimistic update kullan
+            async onQueryStarted(newPost, { dispatch, queryFulfilled }) {
+                // Önce optimistic update yap (backend response beklemeden)
+                const patchResult = dispatch(
+                    postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
+                        // Frontend'den gönderdiğimiz newPost'u kullan (backend response değil)
+                        draft.push(newPost as Post)
+                    })
+                )
+                
+                try {
+                    // Backend'den response bekle (ama sadece hata kontrolü için)
+                    await queryFulfilled
+                } catch {
+                    // Hata durumunda optimistic update'i geri al
+                    patchResult.undo()
+                }
+            },
         }),
 
         // PUT /posts/{id} - Postu güncelle
@@ -46,7 +63,27 @@ export const postsApi = baseApi.injectEndpoints({
                 method: 'PUT',
                 body: post,
             }),
-            invalidatesTags: (result, error, { id }) => [{ type: 'Post', id }],
+            // Optimistic update kullan
+            async onQueryStarted({ id, post }, { dispatch, queryFulfilled }) {
+                // Optimistically update the cache
+                const patchResult = dispatch(
+                    postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
+                        const postIndex = draft.findIndex(p => p.id === id)
+                        if (postIndex !== -1) {
+                            // Backend'den gelen response yerine frontend'deki veriyi kullan
+                            draft[postIndex] = { ...draft[postIndex], ...post }
+                        }
+                    })
+                )
+                
+                try {
+                    // Backend'den response bekle (ama sadece hata kontrolü için)
+                    await queryFulfilled
+                } catch {
+                    // Hata durumunda optimistic update'i geri al
+                    patchResult.undo()
+                }
+            },
         }),
 
         // DELETE /posts/{id} - Postu sil
@@ -55,7 +92,22 @@ export const postsApi = baseApi.injectEndpoints({
                 url: `posts/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Post'],
+            // invalidatesTags kaldırıldı - cache yeniden yüklenmesin
+            // JSONPlaceholder fake API olduğu için optimistic update ekle
+            async onQueryStarted(id, { dispatch, queryFulfilled }) {
+                // Optimistically update the cache - kalıcı olarak
+                dispatch(
+                    postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
+                        return draft.filter(post => post.id !== id)
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    // Hata durumunda bile undo yapmıyoruz, post silinmiş kalacak
+                    // Sadece refresh'e kadar geçici silme
+                }
+            },
         }),
     }),
 })

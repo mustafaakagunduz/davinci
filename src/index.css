@@ -1,14 +1,18 @@
 /* src/index.css */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Reset some default styles for our app */
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Modal scroll prevention with layout preservation */
+body.modal-open {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width, 0);
 }
 
 #root {

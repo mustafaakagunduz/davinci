@@ -24,7 +24,24 @@ export const usersApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: newUser,
             }),
-            invalidatesTags: ['User'],
+            // invalidatesTags kaldırıldı - optimistic update kullan
+            async onQueryStarted(newUser, { dispatch, queryFulfilled, getState }) {
+                // Önce optimistic update yap (backend response beklemeden)
+                const patchResult = dispatch(
+                    usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
+                        // Frontend'den gönderdiğimiz newUser'ı kullan (backend response değil)
+                        draft.push(newUser as User)
+                    })
+                )
+                
+                try {
+                    // Backend'den response bekle (ama sadece hata kontrolü için)
+                    await queryFulfilled
+                } catch {
+                    // Hata durumunda optimistic update'i geri al
+                    patchResult.undo()
+                }
+            },
         }),
 
         // PUT /users/{id} - Kullanıcıyı güncelle
@@ -43,7 +60,22 @@ export const usersApi = baseApi.injectEndpoints({
                 url: `users/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['User', 'Post'], // User silinince Posts da etkilenir
+            // invalidatesTags kaldırıldı - cache yeniden yüklenmesin
+            // JSONPlaceholder fake API olduğu için optimistic update ekle
+            async onQueryStarted(id, { dispatch, queryFulfilled }) {
+                // Optimistically update the cache - kalıcı olarak
+                dispatch(
+                    usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
+                        return draft.filter(user => user.id !== id)
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    // Hata durumunda bile undo yapmıyoruz, user silinmiş kalacak
+                    // Sadece refresh'e kadar geçici silme
+                }
+            },
         }),
     }),
 })
