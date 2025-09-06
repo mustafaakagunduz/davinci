@@ -78,7 +78,7 @@ function AppContent({
             {/* Header */}
             <header className="bg-transparent relative z-10">
                 <div className="container mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
+                    <div className="relative flex items-center justify-between">
                         {/* Left - Title */}
                         <h1 className={`text-xl font-normal transition-colors duration-200 ${
                             isDarkMode ? 'text-white' : 'text-blue-600'
@@ -86,8 +86,8 @@ function AppContent({
                             {t.title}
                         </h1>
 
-                        {/* Center - Tab Navigation */}
-                        <div className={`flex rounded-lg shadow p-1 transition-colors duration-200 ${
+                        {/* Center - Tab Navigation (Absolutely Centered) */}
+                        <div className={`absolute left-1/2 transform -translate-x-1/2 flex rounded-lg shadow p-1 transition-colors duration-200 ${
                             isDarkMode ? 'bg-gray-800' : 'bg-white'
                         }`}>
                             <button

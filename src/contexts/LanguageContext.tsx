@@ -102,7 +102,7 @@ export interface Translations {
 
 const translations: Record<Language, Translations> = {
     TR: {
-        title: 'Kullanıcı & Gönderi Görüntüleyici',
+        title: '{JSON} Placeholder // Kullanıcı & Gönderi Görüntüleyici',
         users: 'Kullanıcılar',
         posts: 'Gönderiler',
         usersList: 'Kullanıcı Listesi',
@@ -199,7 +199,7 @@ const translations: Record<Language, Translations> = {
         update: 'Güncelle'
     },
     EN: {
-        title: 'User & Post Viewer',
+        title: '{JSON} Placeholder // User & Post Viewer',
         users: 'Users',
         posts: 'Posts',
         usersList: 'Users List',
