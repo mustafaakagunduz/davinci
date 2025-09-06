@@ -208,11 +208,13 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                         ? 'bg-gray-800 divide-gray-600' 
                         : 'bg-white divide-gray-200'
                 }`}>
-                {currentUsers.map((user) => (
+                {currentUsers.map((user, index) => (
                     <tr 
                         key={user.id} 
                         className={`cursor-pointer transition-colors duration-200 ${
-                            isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                            index % 2 === 0 
+                                ? isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
+                                : isDarkMode ? 'bg-gray-750 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100'
                         }`}
                         onClick={() => {
                             setSelectedUser(user)

@@ -1,6 +1,7 @@
 // src/store/api/usersApi.ts
 
 import { baseApi } from './baseApi'
+import { postsApi } from './postsApi'
 import type {User, CreateUserRequest} from '../../types/user';
 
 export const usersApi = baseApi.injectEndpoints({
@@ -100,10 +101,18 @@ export const usersApi = baseApi.injectEndpoints({
                         return draft.filter(user => user.id !== id)
                     })
                 )
+                
+                // Cascade delete: Kullanıcının postlarını da sil
+                dispatch(
+                    postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
+                        return draft.filter(post => post.userId !== id)
+                    })
+                )
+                
                 try {
                     await queryFulfilled
                 } catch {
-                    // Hata durumunda bile undo yapmıyoruz, user silinmiş kalacak
+                    // Hata durumunda bile undo yapmıyoruz, user ve postları silinmiş kalacak
                     // Sadece refresh'e kadar geçici silme
                 }
             },
