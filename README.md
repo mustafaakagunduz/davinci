@@ -1,69 +1,169 @@
-# React + TypeScript + Vite
+# DaVinci Project - User & Post Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive React application built with TypeScript and Vite for managing users and posts. This project features a clean UI with dark/light mode support and bilingual (Turkish/English) interface.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+https://davinci-dun.vercel.app
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Core Functionality
+- **User Management**: Complete CRUD operations for users
+- **Post Management**: Complete CRUD operations for posts  
+- **Data Relationships**: Visual connection between users and their posts
+- **Real-time Search**: Filter users by name, username, or email
+- **Post Filtering**: Search posts by title
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### User Experience
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- **Dark/Light Theme**: Toggle between themes with smooth transitions
+- **Bilingual Support**: Switch between Turkish and English languages
+- **Modern UI**: Clean, professional interface with Tailwind CSS
+- **Interactive Tables**: Click-to-view details, inline actions
+- **Modal System**: User-friendly forms and confirmations
+- **Toast Notifications**: Success and error feedback
+- **Pagination**: Efficient data browsing with 10 items per page
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### Technical Features
+- **TypeScript**: Full type safety throughout the application
+- **State Management**: Redux Toolkit with RTK Query for efficient API calls
+- **Form Validation**: Zod schema validation with React Hook Form
+- **Optimistic Updates**: Immediate UI feedback for better UX
+- **Error Handling**: Comprehensive error states and user feedback
+- **Accessibility**: Keyboard navigation and screen reader support
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+
+### State Management & Data Fetching
+- **Redux Toolkit** - State management
+- **RTK Query** - Data fetching and caching
+- **React Hook Form** - Form management
+- **Zod** - Schema validation
+
+### UI Components & Icons
+- **Heroicons** - Beautiful SVG icons
+- **React Hot Toast** - Toast notifications
+- **Custom Modal System** - Reusable modal components
+
+### Development Tools
+- **ESLint** - Code linting
+- **PostCSS** - CSS processing
+- **Autoprefixer** - CSS vendor prefixes
+
+## 📦 Installation & Setup
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/mustafaakagunduz/davinci.git
+   cd davinciproject
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:5173`
+
+### Build for Production
+
+```bash
+# Build the project
+npm run build
+# or
+yarn build
+
+# Preview the production build
+npm run preview
+# or
+yarn preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎯 Usage Guide
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Navigation
+- Use the **Users** and **Posts** tabs to switch between different views
+- Toggle **theme** with the sun/moon icon in the header
+- Switch **language** using the EN/TR button
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### User Management
+- **View Users**: Browse the user list with pagination
+- **Search Users**: Use the search bar to filter by name, username, or email  
+- **Add User**: Click "Add New User" button and fill the comprehensive form
+- **Edit User**: Click the pencil icon or use the detail modal's edit button
+- **Delete User**: Click the trash icon and confirm deletion
+- **View Details**: Click on any user row or the eye icon for detailed information
+
+### Post Management  
+- **View Posts**: Browse posts with user relationship information
+- **Search Posts**: Filter posts by title using the search bar
+- **Add Post**: Click "Add New Post", select a user, and create content
+- **Edit Post**: Use the pencil icon to modify existing posts
+- **Delete Post**: Remove posts with confirmation dialog
+- **View Details**: Click on any post row for full content view
+
+### Data Relationships
+- User table shows **post count** for each user
+- Post table displays **userId** showing the relationship
+- When creating posts, select from existing users
+
+## 🌐 API Integration
+
+The application integrates with [JSONPlaceholder](https://jsonplaceholder.typicode.com/) API:
+
+- **GET** `/users` - Fetch all users
+- **GET** `/users/{id}` - Fetch specific user
+- **POST** `/users` - Create new user
+- **PUT** `/users/{id}` - Update user
+- **DELETE** `/users/{id}` - Delete user
+- **GET** `/posts` - Fetch all posts  
+- **GET** `/posts/{id}` - Fetch specific post
+- **GET** `/posts?userId={userId}` - Fetch user's posts
+- **POST** `/posts` - Create new post
+- **PUT** `/posts/{id}` - Update post
+- **DELETE** `/posts/{id}` - Delete post
+
+## 🧪 Code Quality
+
+### ESLint Configuration
+The project uses strict ESLint rules for code quality:
+```bash
+npm run lint
 ```
+
+### Type Safety
+Full TypeScript coverage with strict mode enabled for maximum type safety.
+
+### Form Validation
+Zod schemas ensure data integrity with user-friendly error messages.
+
+## 🚀 Performance Optimizations
+
+- **Optimistic Updates**: Immediate UI feedback using RTK Query
+- **Memoization**: React.useMemo for expensive calculations
+- **Lazy Loading**: Dynamic imports for code splitting
+- **Efficient Re-renders**: Proper state management and dependencies
+- **Image Optimization**: Vite's built-in image optimization
