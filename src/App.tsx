@@ -15,7 +15,7 @@ function App() {
     const [filterValue, setFilterValue] = useState('')
     const [isDarkMode, setIsDarkMode] = useState(() => {
         const saved = localStorage.getItem('theme')
-        return saved === 'dark'
+        return saved ? saved === 'dark' : true
     })
     const [language, setLanguage] = useState<Language>(() => {
         const saved = localStorage.getItem('language')
