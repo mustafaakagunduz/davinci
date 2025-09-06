@@ -6,6 +6,7 @@ import { useGetPostsQuery } from '../store/api/postsApi'
 import { EyeIcon, PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { useLanguage } from '../contexts/LanguageContext'
 import { UserDetailModal } from './UserDetailModal'
+import { EditUserModal } from './EditUserModal'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { Toast, type ToastType } from './ui/Toast'
 import type { User } from '../types/user'
@@ -24,6 +25,10 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 10
+    
+    // Edit modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [userToEdit, setUserToEdit] = useState<User | null>(null)
     
     // Delete confirmation modal state
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -69,6 +74,21 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
     useMemo(() => {
         setCurrentPage(1)
     }, [filterValue])
+
+    // Handle edit
+    const handleEditClick = (user: User) => {
+        setUserToEdit(user)
+        setIsEditModalOpen(true)
+    }
+
+    const handleEditSuccess = () => {
+        setToast({ message: t.userUpdateSuccess, type: 'success' })
+        // Detay modalını da kapat eğer açıksa
+        if (isDetailModalOpen) {
+            setIsDetailModalOpen(false)
+            setSelectedUser(null)
+        }
+    }
 
     // Handle delete
     const handleDeleteClick = (user: User) => {
@@ -247,7 +267,7 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                                 }`}
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    // Edit functionality will be implemented later
+                                    handleEditClick(user)
                                 }}
                             >
                                 <PencilIcon className="h-5 w-5" />
@@ -321,6 +341,19 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                 user={selectedUser}
                 isDarkMode={isDarkMode}
                 onDelete={handleDeleteClick}
+                onEdit={handleEditClick}
+            />
+
+            {/* Edit User Modal */}
+            <EditUserModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false)
+                    setUserToEdit(null)
+                }}
+                user={userToEdit}
+                isDarkMode={isDarkMode}
+                onSuccess={handleEditSuccess}
             />
 
             {/* Delete Confirmation Modal */}

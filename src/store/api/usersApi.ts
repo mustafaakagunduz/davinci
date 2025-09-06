@@ -1,7 +1,7 @@
 // src/store/api/usersApi.ts
 
 import { baseApi } from './baseApi'
-import type {User, CreateUserRequest, UpdateUserRequest} from '../../types/user';
+import type {User, CreateUserRequest} from '../../types/user';
 
 export const usersApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -14,7 +14,7 @@ export const usersApi = baseApi.injectEndpoints({
         // GET /users/{id} - Belirli bir kullanıcıyı getir
         getUserById: builder.query<User, number>({
             query: (id) => `users/${id}`,
-            providesTags: (result, error, id) => [{ type: 'User', id }],
+            providesTags: (_result, _error, id) => [{ type: 'User', id }],
         }),
 
         // POST /users - Yeni kullanıcı oluştur
@@ -25,7 +25,7 @@ export const usersApi = baseApi.injectEndpoints({
                 body: newUser,
             }),
             // invalidatesTags kaldırıldı - optimistic update kullan
-            async onQueryStarted(newUser, { dispatch, queryFulfilled, getState }) {
+            async onQueryStarted(newUser, { dispatch, queryFulfilled }) {
                 // Önce optimistic update yap (backend response beklemeden)
                 const patchResult = dispatch(
                     usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
@@ -45,13 +45,44 @@ export const usersApi = baseApi.injectEndpoints({
         }),
 
         // PUT /users/{id} - Kullanıcıyı güncelle
-        updateUser: builder.mutation<User, { id: number; user: UpdateUserRequest }>({
-            query: ({ id, user }) => ({
-                url: `users/${id}`,
+        updateUser: builder.mutation<User, User>({
+            query: (user) => ({
+                url: `users/${user.id}`,
                 method: 'PUT',
                 body: user,
             }),
-            invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
+            async onQueryStarted(user, { dispatch, queryFulfilled }) {
+                // Optimistically update the cache
+                const patchResult = dispatch(
+                    usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
+                        const index = draft.findIndex(u => u.id === user.id)
+                        if (index !== -1) {
+                            draft[index] = user
+                        }
+                    })
+                )
+                
+                // Also update the individual user cache if it exists
+                let userPatchResult
+                try {
+                    userPatchResult = dispatch(
+                        usersApi.util.updateQueryData('getUserById', user.id, (_draft) => {
+                            return user
+                        })
+                    )
+                } catch (e) {
+                    // Cache doesn't exist, that's fine
+                    userPatchResult = { undo: () => {} }
+                }
+                
+                try {
+                    await queryFulfilled
+                } catch {
+                    // Hata durumunda optimistic update'i geri al
+                    patchResult.undo()
+                    userPatchResult.undo()
+                }
+            },
         }),
 
         // DELETE /users/{id} - Kullanıcıyı sil

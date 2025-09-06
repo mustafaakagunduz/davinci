@@ -11,9 +11,10 @@ interface UserDetailModalProps {
     user: User | null
     isDarkMode?: boolean
     onDelete?: (user: User) => void
+    onEdit?: (user: User) => void
 }
 
-export const UserDetailModal = ({ isOpen, onClose, user, isDarkMode = false, onDelete }: UserDetailModalProps) => {
+export const UserDetailModal = ({ isOpen, onClose, user, isDarkMode = false, onDelete, onEdit }: UserDetailModalProps) => {
     const { t } = useLanguage()
 
     if (!user) return null
@@ -280,8 +281,9 @@ export const UserDetailModal = ({ isOpen, onClose, user, isDarkMode = false, onD
                 <div className="flex space-x-3">
                     <button
                         onClick={() => {
-                            // Edit functionality will be implemented later
-                            console.log('Edit user:', user.id)
+                            if (onEdit) {
+                                onEdit(user)
+                            }
                         }}
                         className={`px-6 py-2 rounded-lg font-medium border cursor-pointer transition-colors duration-200 ${
                             isDarkMode

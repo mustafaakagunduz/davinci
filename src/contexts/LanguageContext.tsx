@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 
 export type Language = 'TR' | 'EN'
 
@@ -49,7 +49,7 @@ export interface Translations {
     edit: string
     delete: string
     postDetails: string
-    postContent: string
+    postContentLabel: string
     content: string
     author: string
     authorDetails: string
@@ -67,6 +67,9 @@ export interface Translations {
     addUserTitle: string
     userAddSuccess: string
     userAddError: string
+    editUserTitle: string
+    userUpdateSuccess: string
+    userUpdateError: string
     save: string
     required: string
     nameRequired: string
@@ -145,7 +148,7 @@ const translations: Record<Language, Translations> = {
         edit: 'Düzenle',
         delete: 'Sil',
         postDetails: 'Gönderi Detayları',
-        postContent: 'Gönderi İçeriği',
+        postContentLabel: 'Gönderi İçeriği',
         content: 'İçerik',
         author: 'Yazar',
         authorDetails: 'Yazar Bilgileri',
@@ -163,6 +166,9 @@ const translations: Record<Language, Translations> = {
         addUserTitle: 'Kullanıcı Ekle',
         userAddSuccess: 'Kullanıcı başarıyla eklendi!',
         userAddError: 'Kullanıcı eklenirken hata oluştu!',
+        editUserTitle: 'Kullanıcı Düzenle',
+        userUpdateSuccess: 'Kullanıcı başarıyla güncellendi!',
+        userUpdateError: 'Kullanıcı güncellenirken hata oluştu!',
         save: 'Kaydet',
         required: 'zorunlu',
         nameRequired: 'İsim gerekli',
@@ -239,7 +245,7 @@ const translations: Record<Language, Translations> = {
         edit: 'Edit',
         delete: 'Delete',
         postDetails: 'Post Details',
-        postContent: 'Post Content',
+        postContentLabel: 'Post Content',
         content: 'Content',
         author: 'Author',
         authorDetails: 'Author Details',
@@ -257,6 +263,9 @@ const translations: Record<Language, Translations> = {
         addUserTitle: 'Add User',
         userAddSuccess: 'User added successfully!',
         userAddError: 'Error adding user!',
+        editUserTitle: 'Edit User',
+        userUpdateSuccess: 'User updated successfully!',
+        userUpdateError: 'Error updating user!',
         save: 'Save',
         required: 'required',
         nameRequired: 'Name is required',

@@ -95,7 +95,6 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
         )
     }, [users, userSearch])
     
-    const selectedUser = users?.find(u => u.id === selectedUserId)
 
     const onSubmit = async (data: FormData) => {
         try {
@@ -135,7 +134,7 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
         onClose()
     }
     
-    const handleUserSelect = (user: typeof users[0]) => {
+    const handleUserSelect = (user: NonNullable<typeof users>[0]) => {
         setValue('userId', user.id)
         setUserSearch(`${user.name} (@${user.username})`)
         setIsDropdownOpen(false)

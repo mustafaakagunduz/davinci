@@ -14,13 +14,13 @@ export const postsApi = baseApi.injectEndpoints({
         // GET /posts/{id} - Belirli bir postu getir
         getPostById: builder.query<Post, number>({
             query: (id) => `posts/${id}`,
-            providesTags: (result, error, id) => [{ type: 'Post', id }],
+            providesTags: (_result, _error, id) => [{ type: 'Post', id }],
         }),
 
         // GET /posts?userId={userId} - Belirli kullanıcının postlarını getir
         getPostsByUserId: builder.query<Post[], number>({
             query: (userId) => `posts?userId=${userId}`,
-            providesTags: (result, error, userId) =>
+            providesTags: (result, _error, userId) =>
                 result
                     ? [
                         ...result.map(({ id }) => ({ type: 'Post' as const, id })),
