@@ -40,7 +40,7 @@ export function BaseTable<T>({
     filterValue,
     filterFunction,
     isDarkMode = false,
-    itemsPerPage = 10,
+    itemsPerPage = 20,
     getItemId,
     onItemClick,
     onItemView,
