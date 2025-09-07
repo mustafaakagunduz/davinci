@@ -20,7 +20,8 @@ https://davinci-dun.vercel.app
 - **Dark/Light Theme**: Toggle between themes with smooth transitions
 - **Bilingual Support**: Switch between Turkish and English languages
 - **Modern UI**: Clean, professional interface with Tailwind CSS
-- **Interactive Tables**: Click-to-view details, inline actions
+- **Interactive Tables**: Click-to-view details with context menu support
+- **Context Menu**: Right-click or long-press for quick actions (View/Edit/Delete)
 - **Modal System**: User-friendly forms and confirmations
 - **Toast Notifications**: Success and error feedback
 - **Pagination**: Efficient data browsing with 10 items per page
@@ -113,17 +114,19 @@ yarn preview
 - **View Users**: Browse the user list with pagination
 - **Search Users**: Use the search bar to filter by name, username, or email  
 - **Add User**: Click "Add New User" button and fill the comprehensive form
-- **Edit User**: Click the pencil icon or use the detail modal's edit button
-- **Delete User**: Click the trash icon and confirm deletion
-- **View Details**: Click on any user row or the eye icon for detailed information
+- **Quick Actions**: Right-click on any user row or long-press (touchpad) for context menu
+- **Edit User**: Use context menu or detail modal's edit button
+- **Delete User**: Use context menu and confirm deletion
+- **View Details**: Left-click on any user row for detailed information
 
 ### Post Management  
 - **View Posts**: Browse posts with user relationship information
 - **Search Posts**: Filter posts by title using the search bar
 - **Add Post**: Click "Add New Post", select a user, and create content
-- **Edit Post**: Use the pencil icon to modify existing posts
-- **Delete Post**: Remove posts with confirmation dialog
-- **View Details**: Click on any post row for full content view
+- **Quick Actions**: Right-click on any post row or long-press (touchpad) for context menu
+- **Edit Post**: Use context menu to modify existing posts
+- **Delete Post**: Use context menu and confirm deletion
+- **View Details**: Left-click on any post row for full content view
 
 ### Data Relationships
 - User table shows **post count** for each user
@@ -160,10 +163,25 @@ Full TypeScript coverage with strict mode enabled for maximum type safety.
 ### Form Validation
 Zod schemas ensure data integrity with user-friendly error messages.
 
+## 🖱️ Interaction Features
+
+### Context Menu System
+- **Right-Click Support**: Desktop users can right-click on table rows
+- **Touchpad Compatibility**: Long-press (500ms) support for touchpad users
+- **Touch Device Support**: Long-press works on mobile and tablet devices
+- **Quick Actions**: Access View, Edit, and Delete without opening modals first
+- **Keyboard Support**: ESC key to close, proper focus management
+
+### Table Interactions
+- **Left Click**: Opens detailed view modal
+- **Right Click**: Opens context menu with quick actions
+- **Long Press**: Alternative to right-click for touchpad/touch devices
+- **Clean Design**: Removed action columns for cleaner table appearance
+
 ## 🚀 Performance Optimizations
 
 - **Optimistic Updates**: Immediate UI feedback using RTK Query
 - **Memoization**: React.useMemo for expensive calculations
 - **Lazy Loading**: Dynamic imports for code splitting
 - **Efficient Re-renders**: Proper state management and dependencies
-- **Image Optimization**: Vite's built-in image optimization
+- **Event Optimization**: Smart event handling for context menus

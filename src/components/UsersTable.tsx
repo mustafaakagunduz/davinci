@@ -3,12 +3,13 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useGetUsersQuery, useDeleteUserMutation } from '../store/api/usersApi'
 import { useGetPostsQuery } from '../store/api/postsApi'
-import { EyeIcon, PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { useLanguage } from '../contexts/LanguageContext'
 import { UserDetailModal } from './UserDetailModal'
 import { EditUserModal } from './EditUserModal'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { Toast, type ToastType } from './ui/Toast'
+import { ContextMenu } from './ui/ContextMenu'
 import type { User } from '../types/user'
 
 interface UsersTableProps {
@@ -36,6 +37,17 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
     
     // Toast state
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
+    
+    // Context menu state
+    const [contextMenu, setContextMenu] = useState<{
+        x: number
+        y: number
+        user: User | null
+        isVisible: boolean
+    }>({ x: 0, y: 0, user: null, isVisible: false })
+    
+    // Long press state
+    const [longPressTimer, setLongPressTimer] = useState<number | null>(null)
 
     // Helper function to get post count for a user (memoized for performance)
     const getPostCount = useMemo(() => {
@@ -119,6 +131,77 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
         setUserToDelete(null)
     }
 
+    // Handle context menu
+    const handleContextMenu = (event: React.MouseEvent<HTMLTableRowElement>, user: User) => {
+        event.preventDefault()
+        setContextMenu({
+            x: event.clientX,
+            y: event.clientY,
+            user,
+            isVisible: true
+        })
+    }
+
+    const handleContextMenuClose = () => {
+        setContextMenu({ x: 0, y: 0, user: null, isVisible: false })
+    }
+
+    const handleContextMenuView = () => {
+        if (contextMenu.user) {
+            setSelectedUser(contextMenu.user)
+            setIsDetailModalOpen(true)
+        }
+    }
+
+    const handleContextMenuEdit = () => {
+        if (contextMenu.user) {
+            handleEditClick(contextMenu.user)
+        }
+    }
+
+    const handleContextMenuDelete = () => {
+        if (contextMenu.user) {
+            handleDeleteClick(contextMenu.user)
+        }
+    }
+
+    // Handle long press for touchpad users
+    const handleMouseDown = (event: React.MouseEvent<HTMLTableRowElement>, user: User) => {
+        // Clear any existing timer
+        if (longPressTimer) {
+            clearTimeout(longPressTimer)
+        }
+        
+        // Set up long press timer
+        const timer = setTimeout(() => {
+            // Trigger context menu after 500ms
+            setContextMenu({
+                x: event.clientX,
+                y: event.clientY,
+                user,
+                isVisible: true
+            })
+        }, 500)
+        
+        setLongPressTimer(timer)
+    }
+
+    const handleMouseUp = () => {
+        // Clear timer if mouse is released before 500ms
+        if (longPressTimer) {
+            clearTimeout(longPressTimer)
+            setLongPressTimer(null)
+        }
+    }
+
+    const handleMouseLeave = () => {
+        // Clear timer if mouse leaves the row
+        if (longPressTimer) {
+            clearTimeout(longPressTimer)
+            setLongPressTimer(null)
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center py-8">
@@ -196,11 +279,6 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                     }`}>
                         {t.postCount}
                     </th>
-                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                    }`}>
-                        {t.actions}
-                    </th>
                 </tr>
                 </thead>
                 <tbody className={`divide-y transition-colors duration-200 ${
@@ -220,6 +298,10 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                             setSelectedUser(user)
                             setIsDetailModalOpen(true)
                         }}
+                        onContextMenu={(e) => handleContextMenu(e, user)}
+                        onMouseDown={(e) => handleMouseDown(e, user)}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseLeave}
                     >
                         <td className={`px-6 py-2 whitespace-nowrap text-base text-center transition-colors duration-200 ${
                             isDarkMode ? 'text-gray-100' : 'text-gray-900'
@@ -245,48 +327,6 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                             isDarkMode ? 'text-gray-300' : 'text-gray-500'
                         }`}>
                             {getPostCount(user.id)}
-                        </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-base font-normal space-x-1 text-center">
-                            <button 
-                                className={`p-2 cursor-pointer transition-colors duration-200 relative z-10 ${
-                                    isDarkMode 
-                                        ? 'text-gray-300 hover:bg-gray-600' 
-                                        : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedUser(user)
-                                    setIsDetailModalOpen(true)
-                                }}
-                            >
-                                <EyeIcon className="h-5 w-5" />
-                            </button>
-                            <button 
-                                className={`p-2 cursor-pointer transition-colors duration-200 relative z-10 ${
-                                    isDarkMode 
-                                        ? 'text-gray-300 hover:bg-gray-600' 
-                                        : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleEditClick(user)
-                                }}
-                            >
-                                <PencilIcon className="h-5 w-5" />
-                            </button>
-                            <button 
-                                className={`p-2 cursor-pointer transition-colors duration-200 relative z-10 ${
-                                    isDarkMode 
-                                        ? 'text-gray-300 hover:bg-gray-600' 
-                                        : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleDeleteClick(user)
-                                }}
-                            >
-                                <TrashIcon className="h-5 w-5" />
-                            </button>
                         </td>
                     </tr>
                 ))}
@@ -366,6 +406,18 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                 isDarkMode={isDarkMode}
                 isLoading={isDeleting}
                 isUser={true}
+            />
+
+            {/* Context Menu */}
+            <ContextMenu
+                x={contextMenu.x}
+                y={contextMenu.y}
+                isVisible={contextMenu.isVisible}
+                onClose={handleContextMenuClose}
+                onView={handleContextMenuView}
+                onEdit={handleContextMenuEdit}
+                onDelete={handleContextMenuDelete}
+                isDarkMode={isDarkMode}
             />
 
             {/* Toast */}

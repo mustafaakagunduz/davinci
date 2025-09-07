@@ -104,7 +104,6 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
             }
             
             const newId = nextIdRef.current
-            console.log('Assigning Post ID:', newId)
 
             // Backend API formatına uygun olarak dönüştür
             const postToAdd = {

@@ -49,10 +49,8 @@ export const Modal = ({
     }, [isOpen, onClose])
 
     if (!isOpen) {
-        console.log('Modal is not open, returning null')
         return null
     }
-    console.log('Modal is open, rendering modal')
 
     // Modal boyut sınıfları
     const sizeClasses = {

@@ -99,7 +99,6 @@ export const AddUserModal = ({ isOpen, onClose, isDarkMode = false }: AddUserMod
             }
             
             const newId = nextIdRef.current
-            console.log('Assigning ID:', newId)
 
             // Backend API formatına uygun olarak dönüştür
             const userToAdd = {
