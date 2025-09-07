@@ -6,6 +6,37 @@ A modern, responsive React application built with TypeScript and Vite for managi
 
 https://davinci-dun.vercel.app
 
+## 📦 Installation & Setup
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/mustafaakagunduz/davinci.git
+   cd davinci
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:5173`
+
 ## ✨ Features
 
 ### Core Functionality
@@ -57,37 +88,6 @@ https://davinci-dun.vercel.app
 - **ESLint** - Code linting
 - **PostCSS** - CSS processing
 - **Autoprefixer** - CSS vendor prefixes
-
-## 📦 Installation & Setup
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Installation Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/mustafaakagunduz/davinci.git
-   cd davinciproject
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
-
-4. **Open your browser**
-   Navigate to `http://localhost:5173`
 
 ### Build for Production
 
