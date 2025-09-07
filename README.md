@@ -41,10 +41,8 @@ https://davinci-dun.vercel.app
 
 ### Core Functionality
 - **User Management**: Complete CRUD operations for users
-- **Post Management**: Complete CRUD operations for posts  
-- **Data Relationships**: Visual connection between users and their posts
-- **Real-time Search**: Filter users by name, username, or email
-- **Post Filtering**: Search posts by title
+- **Post Management**: Complete CRUD operations for posts
+- **Real-time Search**: Filter users by name, username, or email; posts by title
 
 ### User Experience
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
@@ -52,25 +50,22 @@ https://davinci-dun.vercel.app
 - **Bilingual Support**: Switch between Turkish and English languages
 - **Modern UI**: Clean, professional interface with Tailwind CSS
 - **Interactive Tables**: Click-to-view details with context menu support
-- **Context Menu**: Right-click or long-press for quick actions (View/Edit/Delete)
+- **Context Menu**: Right-click for quick actions (View/Edit/Delete)
 - **Modal System**: User-friendly forms and confirmations
 - **Toast Notifications**: Success and error feedback
-- **Pagination**: Efficient data browsing with 10 items per page
+- **Pagination**: Efficient data browsing with 20 items per page
 
 ### Technical Features
 - **TypeScript**: Full type safety throughout the application
 - **State Management**: Redux Toolkit with RTK Query for efficient API calls
 - **Form Validation**: Zod schema validation with React Hook Form
 - **Optimistic Updates**: Immediate UI feedback for better UX
-- **Error Handling**: Comprehensive error states and user feedback
-- **Accessibility**: Keyboard navigation and screen reader support
 
 ## 🖱️ Interaction Features
 
 ### Table Interactions
 - **Left Click**: Opens detailed view modal
-- **Right Click**: Opens context menu with quick actions
-- **Quick Actions**: Access View, Edit, and Delete without opening modals first
+- **Right Click**: Opens quick actions menu (View, Edit, and Delete operations without opening modals first)
 
 ## 🛠️ Technology Stack
 
@@ -116,45 +111,6 @@ yarn preview
 - Use the **Users** and **Posts** tabs to switch between different views
 - Toggle **theme** with the sun/moon icon in the header
 - Switch **language** using the EN/TR button
-
-### User Management
-- **View Users**: Browse the user list with pagination
-- **Search Users**: Use the search bar to filter by name, username, or email  
-- **Add User**: Click "Add New User" button and fill the comprehensive form
-- **Quick Actions**: Right-click on any user row or long-press (touchpad) for context menu
-- **Edit User**: Use context menu or detail modal's edit button
-- **Delete User**: Use context menu and confirm deletion
-- **View Details**: Left-click on any user row for detailed information
-
-### Post Management  
-- **View Posts**: Browse posts with user relationship information
-- **Search Posts**: Filter posts by title using the search bar
-- **Add Post**: Click "Add New Post", select a user, and create content
-- **Quick Actions**: Right-click on any post row or long-press (touchpad) for context menu
-- **Edit Post**: Use context menu to modify existing posts
-- **Delete Post**: Use context menu and confirm deletion
-- **View Details**: Left-click on any post row for full content view
-
-### Data Relationships
-- User table shows **post count** for each user
-- Post table displays **userId** showing the relationship
-- When creating posts, select from existing users
-
-## 🌐 API Integration
-
-The application integrates with [JSONPlaceholder](https://jsonplaceholder.typicode.com/) API:
-
-- **GET** `/users` - Fetch all users
-- **GET** `/users/{id}` - Fetch specific user
-- **POST** `/users` - Create new user
-- **PUT** `/users/{id}` - Update user
-- **DELETE** `/users/{id}` - Delete user
-- **GET** `/posts` - Fetch all posts  
-- **GET** `/posts/{id}` - Fetch specific post
-- **GET** `/posts?userId={userId}` - Fetch user's posts
-- **POST** `/posts` - Create new post
-- **PUT** `/posts/{id}` - Update post
-- **DELETE** `/posts/{id}` - Delete post
 
 ## 🧪 Code Quality
 
