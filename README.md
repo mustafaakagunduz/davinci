@@ -65,6 +65,13 @@ https://davinci-dun.vercel.app
 - **Error Handling**: Comprehensive error states and user feedback
 - **Accessibility**: Keyboard navigation and screen reader support
 
+## 🖱️ Interaction Features
+
+### Table Interactions
+- **Left Click**: Opens detailed view modal
+- **Right Click**: Opens context menu with quick actions
+- **Quick Actions**: Access View, Edit, and Delete without opening modals first
+
 ## 🛠️ Technology Stack
 
 ### Frontend
@@ -163,25 +170,8 @@ Full TypeScript coverage with strict mode enabled for maximum type safety.
 ### Form Validation
 Zod schemas ensure data integrity with user-friendly error messages.
 
-## 🖱️ Interaction Features
-
-### Context Menu System
-- **Right-Click Support**: Desktop users can right-click on table rows
-- **Touchpad Compatibility**: Long-press (500ms) support for touchpad users
-- **Touch Device Support**: Long-press works on mobile and tablet devices
-- **Quick Actions**: Access View, Edit, and Delete without opening modals first
-- **Keyboard Support**: ESC key to close, proper focus management
-
-### Table Interactions
-- **Left Click**: Opens detailed view modal
-- **Right Click**: Opens context menu with quick actions
-- **Long Press**: Alternative to right-click for touchpad/touch devices
-- **Clean Design**: Removed action columns for cleaner table appearance
-
 ## 🚀 Performance Optimizations
 
 - **Optimistic Updates**: Immediate UI feedback using RTK Query
-- **Memoization**: React.useMemo for expensive calculations
-- **Lazy Loading**: Dynamic imports for code splitting
 - **Efficient Re-renders**: Proper state management and dependencies
 - **Event Optimization**: Smart event handling for context menus
