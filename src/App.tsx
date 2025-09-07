@@ -81,7 +81,7 @@ function AppContent({
                     <div className="relative flex items-center justify-between">
                         {/* Left - Title */}
                         <h1 className={`text-xl font-normal transition-colors duration-200 ${
-                            isDarkMode ? 'text-white' : 'text-blue-600'
+                            isDarkMode ? 'text-white' : 'text-blue-900'
                         }`}>
                             {t.title}
                         </h1>

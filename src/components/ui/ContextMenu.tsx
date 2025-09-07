@@ -93,8 +93,7 @@ export const ContextMenu = ({
             onClick: () => {
                 onDelete()
                 onClose()
-            },
-            className: 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/30 dark:hover:text-red-300'
+            }
         }
     ]
 
@@ -119,12 +118,11 @@ export const ContextMenu = ({
                             key={index}
                             onClick={item.onClick}
                             className={`
-                                w-full flex items-center px-4 py-2 text-sm transition-colors duration-200
-                                ${item.className || `${
+                                w-full flex items-center px-4 py-2 text-sm transition-colors duration-200 ${
                                     isDarkMode 
                                         ? 'text-gray-300 hover:bg-gray-700 hover:text-gray-100' 
                                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                                }`}
+                                }
                             `}
                         >
                             <Icon className="h-4 w-4 mr-3" />

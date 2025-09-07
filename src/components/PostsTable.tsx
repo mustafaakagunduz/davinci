@@ -1,15 +1,11 @@
-// src/components/PostsTable.tsx
-
-import { useMemo, useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useGetPostsQuery, useDeletePostMutation } from '../store/api/postsApi'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { useLanguage } from '../contexts/LanguageContext'
 import { PostDetailModal } from './PostDetailModal'
 import { EditPostModal } from './EditPostModal'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { Toast, type ToastType } from './ui/Toast'
-import { ContextMenu } from './ui/ContextMenu'
-
+import { BaseTable, type Column } from './BaseTable'
 import type { Post } from '../types/post'
 
 interface PostsTableProps {
@@ -23,8 +19,6 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
     const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation()
     const [selectedPost, setSelectedPost] = useState<Post | null>(null)
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 10
     
     // Edit modal state
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -36,43 +30,57 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
     
     // Toast state
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
-    
-    // Context menu state
-    const [contextMenu, setContextMenu] = useState<{
-        x: number
-        y: number
-        post: Post | null
-        isVisible: boolean
-    }>({ x: 0, y: 0, post: null, isVisible: false })
-    
-    // Long press state
-    const [longPressTimer, setLongPressTimer] = useState<number | null>(null)
 
-    // Filter posts based on title
-    const filteredPosts = useMemo(() => {
-        if (!posts || !filterValue.trim()) return posts
-
+    // Filter function for posts
+    const filterPosts = (posts: Post[], filterValue: string) => {
         const searchTerm = filterValue.toLowerCase().trim()
-        
         return posts.filter(post => 
             post.title.toLowerCase().includes(searchTerm)
         )
-    }, [posts, filterValue])
+    }
 
-    // Calculate pagination
-    const totalItems = filteredPosts?.length || 0
-    const totalPages = Math.ceil(totalItems / itemsPerPage)
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    const currentPosts = filteredPosts?.slice(startIndex, endIndex) || []
+    // Table columns configuration
+    const columns: Column<Post>[] = [
+        {
+            key: 'id',
+            label: t.id,
+            render: (post) => <span className="font-normal">{post.id}</span>
+        },
+        {
+            key: 'userId',
+            label: t.userId,
+            render: (post) => <span className="font-normal">{post.userId}</span>
+        },
+        {
+            key: 'title',
+            label: t.title_field,
+            render: (post) => (
+                <div className="max-w-xs mx-auto">
+                    <div className="truncate text-center font-normal">
+                        {post.title}
+                    </div>
+                </div>
+            )
+        }
+    ]
 
-    // Reset to first page when filter changes
-    useEffect(() => {
-        setCurrentPage(1)
-    }, [filterValue])
+    // Event handlers
+    const handlePostClick = (post: Post) => {
+        setSelectedPost(post)
+        setIsDetailModalOpen(true)
+    }
 
-    // Handle delete
-    const handleDeleteClick = (post: Post) => {
+    const handlePostView = (post: Post) => {
+        setSelectedPost(post)
+        setIsDetailModalOpen(true)
+    }
+
+    const handlePostEdit = (post: Post) => {
+        setPostToEdit(post)
+        setIsEditModalOpen(true)
+    }
+
+    const handlePostDelete = (post: Post) => {
         setPostToDelete(post)
         setIsDeleteModalOpen(true)
     }
@@ -85,7 +93,6 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
             setToast({ message: t.deleteSuccess, type: 'success' })
             setIsDeleteModalOpen(false)
             setPostToDelete(null)
-            // Detail modal'ı da kapat eğer silinen post açıksa
             if (selectedPost && selectedPost.id === postToDelete.id) {
                 setIsDetailModalOpen(false)
                 setSelectedPost(null)
@@ -100,259 +107,33 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
         setPostToDelete(null)
     }
 
-    // Handle edit
-    const handleEditClick = (post: Post) => {
-        setPostToEdit(post)
-        setIsEditModalOpen(true)
-    }
-
     const handleEditClose = () => {
         setIsEditModalOpen(false)
         setPostToEdit(null)
     }
 
-    // Handle context menu
-    const handleContextMenu = (event: React.MouseEvent<HTMLTableRowElement>, post: Post) => {
-        event.preventDefault()
-        setContextMenu({
-            x: event.clientX,
-            y: event.clientY,
-            post,
-            isVisible: true
-        })
-    }
-
-    const handleContextMenuClose = () => {
-        setContextMenu({ x: 0, y: 0, post: null, isVisible: false })
-    }
-
-    const handleContextMenuView = () => {
-        if (contextMenu.post) {
-            setSelectedPost(contextMenu.post)
-            setIsDetailModalOpen(true)
-        }
-    }
-
-    const handleContextMenuEdit = () => {
-        if (contextMenu.post) {
-            handleEditClick(contextMenu.post)
-        }
-    }
-
-    const handleContextMenuDelete = () => {
-        if (contextMenu.post) {
-            handleDeleteClick(contextMenu.post)
-        }
-    }
-
-    // Handle long press for touchpad users
-    const handleMouseDown = (event: React.MouseEvent<HTMLTableRowElement>, post: Post) => {
-        // Clear any existing timer
-        if (longPressTimer) {
-            clearTimeout(longPressTimer)
-        }
-        
-        // Set up long press timer
-        const timer = setTimeout(() => {
-            // Trigger context menu after 500ms
-            setContextMenu({
-                x: event.clientX,
-                y: event.clientY,
-                post,
-                isVisible: true
-            })
-        }, 500)
-        
-        setLongPressTimer(timer)
-    }
-
-    const handleMouseUp = () => {
-        // Clear timer if mouse is released before 500ms
-        if (longPressTimer) {
-            clearTimeout(longPressTimer)
-            setLongPressTimer(null)
-        }
-    }
-
-    const handleMouseLeave = () => {
-        // Clear timer if mouse leaves the row
-        if (longPressTimer) {
-            clearTimeout(longPressTimer)
-            setLongPressTimer(null)
-        }
-    }
-
-    if (postsLoading) {
-        return (
-            <div className="flex justify-center items-center py-8">
-                <div className="text-lg">{t.loadingPosts}</div>
-            </div>
-        )
-    }
-
-    if (postsError) {
-        return (
-            <div className="flex justify-center items-center py-8">
-                <div className="text-red-500">
-                    {t.errorLoadingPosts}: {postsErrorData && 'status' in postsErrorData ? postsErrorData.status : 'Unknown error'}
-                </div>
-            </div>
-        )
-    }
-
-    if (!posts || posts.length === 0) {
-        return (
-            <div className="flex justify-center items-center py-8">
-                <div className={`transition-colors duration-200 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>{t.noPostsFound}</div>
-            </div>
-        )
-    }
-
-    if (filteredPosts && filteredPosts.length === 0 && filterValue.trim()) {
-        return (
-            <div className="flex justify-center items-center py-8">
-                <div className={`transition-colors duration-200 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                    {t.noPostsMatching} "{filterValue}"
-                </div>
-            </div>
-        )
-    }
-
     return (
         <div>
-            <div className="overflow-x-auto">
-                <table className={`min-w-full border transition-colors duration-200 ${
-                isDarkMode 
-                    ? 'bg-gray-800 border-gray-600' 
-                    : 'bg-white border-gray-200'
-            }`}>
-                <thead className={`transition-colors duration-200 ${
-                    isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                }`}>
-                <tr>
-                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                    }`}>
-                        {t.id}
-                    </th>
-                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                    }`}>
-                        {t.userId}
-                    </th>
-                    <th className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                    }`}>
-                        {t.title_field}
-                    </th>
-                </tr>
-                </thead>
-                <tbody className={`divide-y transition-colors duration-200 ${
-                    isDarkMode 
-                        ? 'bg-gray-800 divide-gray-600' 
-                        : 'bg-white divide-gray-200'
-                }`}>
-                {currentPosts.map((post, index) => {
-                    const isContextMenuActive = contextMenu.isVisible && contextMenu.post?.id === post.id
-                    
-                    // Eğer context menu aktifse hover rengini zorla uygula, değilse normal hover davranışı
-                    let rowClassName
-                    if (isContextMenuActive) {
-                        // Context menu aktifken hover rengini zorla uygula
-                        rowClassName = isDarkMode ? 'bg-gray-700' : 
-                            (index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100')
-                    } else {
-                        // Normal durum: base renk + hover efekti
-                        const baseClassName = index % 2 === 0 
-                            ? isDarkMode ? 'bg-gray-800' : 'bg-white'
-                            : isDarkMode ? 'bg-gray-750' : 'bg-gray-50'
-                        
-                        const hoverClassName = isDarkMode ? 'hover:bg-gray-700' : 
-                            (index % 2 === 0 ? 'hover:bg-gray-50' : 'hover:bg-gray-100')
-                        
-                        rowClassName = `${baseClassName} ${hoverClassName}`
-                    }
-                    
-                    return (
-                    <tr 
-                        key={post.id} 
-                        className={`cursor-pointer transition-colors duration-200 ${rowClassName}`}
-                        onClick={() => {
-                            setSelectedPost(post)
-                            setIsDetailModalOpen(true)
-                        }}
-                        onContextMenu={(e) => handleContextMenu(e, post)}
-                        onMouseDown={(e) => handleMouseDown(e, post)}
-                        onMouseUp={handleMouseUp}
-                        onMouseLeave={handleMouseLeave}
-                    >
-                        <td className={`px-6 py-2 whitespace-nowrap text-base text-center transition-colors duration-200 ${
-                            isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                        }`}>
-                            {post.id}
-                        </td>
-                        <td className={`px-6 py-2 whitespace-nowrap text-base text-center transition-colors duration-200 ${
-                            isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                        }`}>
-                            {post.userId}
-                        </td>
-                        <td className={`px-6 py-2 text-base font-normal max-w-xs text-center transition-colors duration-200 ${
-                            isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                        }`}>
-                            <div className="truncate">
-                                {post.title}
-                            </div>
-                        </td>
-                    </tr>
-                    )
-                })}
-                </tbody>
-                </table>
-            </div>
+            <BaseTable<Post>
+                data={posts}
+                columns={columns}
+                isLoading={postsLoading}
+                isError={postsError}
+                error={postsErrorData}
+                filterValue={filterValue}
+                filterFunction={filterPosts}
+                isDarkMode={isDarkMode}
+                getItemId={(post) => post.id}
+                onItemClick={handlePostClick}
+                onItemView={handlePostView}
+                onItemEdit={handlePostEdit}
+                onItemDelete={handlePostDelete}
+                noDataMessage={t.noPostsFound}
+                noFilterResultsMessage={(filter) => `${t.noPostsMatching} "${filter}"`}
+                loadingMessage={t.loadingPosts}
+                errorMessage={(err) => `${t.errorLoadingPosts}: ${err && typeof err === 'object' && err !== null && 'status' in err ? (err as {status: unknown}).status : 'Unknown error'}`}
+            />
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="flex justify-end items-center mt-4 space-x-2">
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className={`p-2 rounded-lg transition-colors duration-200 ${
-                            currentPage === 1
-                                ? 'opacity-50 cursor-not-allowed'
-                                : isDarkMode 
-                                    ? 'hover:bg-gray-700 text-gray-300' 
-                                    : 'hover:bg-gray-100 text-gray-600'
-                        }`}
-                    >
-                        <ChevronLeftIcon className="h-5 w-5" />
-                    </button>
-                    
-                    <span className={`px-3 py-1 text-sm transition-colors duration-200 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}>
-                        {currentPage} / {totalPages}
-                    </span>
-                    
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className={`p-2 rounded-lg transition-colors duration-200 ${
-                            currentPage === totalPages
-                                ? 'opacity-50 cursor-not-allowed'
-                                : isDarkMode 
-                                    ? 'hover:bg-gray-700 text-gray-300' 
-                                    : 'hover:bg-gray-100 text-gray-600'
-                        }`}
-                    >
-                        <ChevronRightIcon className="h-5 w-5" />
-                    </button>
-                </div>
-            )}
-            
             {/* Post Detail Modal */}
             <PostDetailModal
                 isOpen={isDetailModalOpen}
@@ -362,8 +143,8 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
                 }}
                 post={selectedPost}
                 isDarkMode={isDarkMode}
-                onDelete={handleDeleteClick}
-                onEdit={handleEditClick}
+                onDelete={handlePostDelete}
+                onEdit={handlePostEdit}
             />
 
             {/* Edit Post Modal */}
@@ -383,18 +164,6 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
                 onConfirm={handleDeleteConfirm}
                 isDarkMode={isDarkMode}
                 isLoading={isDeleting}
-            />
-
-            {/* Context Menu */}
-            <ContextMenu
-                x={contextMenu.x}
-                y={contextMenu.y}
-                isVisible={contextMenu.isVisible}
-                onClose={handleContextMenuClose}
-                onView={handleContextMenuView}
-                onEdit={handleContextMenuEdit}
-                onDelete={handleContextMenuDelete}
-                isDarkMode={isDarkMode}
             />
 
             {/* Toast */}
