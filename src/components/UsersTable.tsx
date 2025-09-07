@@ -286,14 +286,31 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                         ? 'bg-gray-800 divide-gray-600' 
                         : 'bg-white divide-gray-200'
                 }`}>
-                {currentUsers.map((user, index) => (
+                {currentUsers.map((user, index) => {
+                    const isContextMenuActive = contextMenu.isVisible && contextMenu.user?.id === user.id
+                    
+                    // Eğer context menu aktifse hover rengini zorla uygula, değilse normal hover davranışı
+                    let rowClassName
+                    if (isContextMenuActive) {
+                        // Context menu aktifken hover rengini zorla uygula
+                        rowClassName = isDarkMode ? 'bg-gray-700' : 
+                            (index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100')
+                    } else {
+                        // Normal durum: base renk + hover efekti
+                        const baseClassName = index % 2 === 0 
+                            ? isDarkMode ? 'bg-gray-800' : 'bg-white'
+                            : isDarkMode ? 'bg-gray-750' : 'bg-gray-50'
+                        
+                        const hoverClassName = isDarkMode ? 'hover:bg-gray-700' : 
+                            (index % 2 === 0 ? 'hover:bg-gray-50' : 'hover:bg-gray-100')
+                        
+                        rowClassName = `${baseClassName} ${hoverClassName}`
+                    }
+                    
+                    return (
                     <tr 
                         key={user.id} 
-                        className={`cursor-pointer transition-colors duration-200 ${
-                            index % 2 === 0 
-                                ? isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
-                                : isDarkMode ? 'bg-gray-750 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100'
-                        }`}
+                        className={`cursor-pointer transition-colors duration-200 ${rowClassName}`}
                         onClick={() => {
                             setSelectedUser(user)
                             setIsDetailModalOpen(true)
@@ -329,7 +346,8 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                             {getPostCount(user.id)}
                         </td>
                     </tr>
-                ))}
+                    )
+                })}
                 </tbody>
                 </table>
             </div>

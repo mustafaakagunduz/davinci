@@ -256,14 +256,31 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
                         ? 'bg-gray-800 divide-gray-600' 
                         : 'bg-white divide-gray-200'
                 }`}>
-                {currentPosts.map((post, index) => (
+                {currentPosts.map((post, index) => {
+                    const isContextMenuActive = contextMenu.isVisible && contextMenu.post?.id === post.id
+                    
+                    // Eğer context menu aktifse hover rengini zorla uygula, değilse normal hover davranışı
+                    let rowClassName
+                    if (isContextMenuActive) {
+                        // Context menu aktifken hover rengini zorla uygula
+                        rowClassName = isDarkMode ? 'bg-gray-700' : 
+                            (index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100')
+                    } else {
+                        // Normal durum: base renk + hover efekti
+                        const baseClassName = index % 2 === 0 
+                            ? isDarkMode ? 'bg-gray-800' : 'bg-white'
+                            : isDarkMode ? 'bg-gray-750' : 'bg-gray-50'
+                        
+                        const hoverClassName = isDarkMode ? 'hover:bg-gray-700' : 
+                            (index % 2 === 0 ? 'hover:bg-gray-50' : 'hover:bg-gray-100')
+                        
+                        rowClassName = `${baseClassName} ${hoverClassName}`
+                    }
+                    
+                    return (
                     <tr 
                         key={post.id} 
-                        className={`cursor-pointer transition-colors duration-200 ${
-                            index % 2 === 0 
-                                ? isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
-                                : isDarkMode ? 'bg-gray-750 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100'
-                        }`}
+                        className={`cursor-pointer transition-colors duration-200 ${rowClassName}`}
                         onClick={() => {
                             setSelectedPost(post)
                             setIsDetailModalOpen(true)
@@ -291,7 +308,8 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
                             </div>
                         </td>
                     </tr>
-                ))}
+                    )
+                })}
                 </tbody>
                 </table>
             </div>
