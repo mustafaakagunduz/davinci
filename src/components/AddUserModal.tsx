@@ -133,7 +133,8 @@ export const AddUserModal = ({ isOpen, onClose, isDarkMode = false }: AddUserMod
             setToast({ message: t.userAddSuccess, type: 'success' })
             reset()
             onClose()
-        } catch {
+        } catch (error) {
+            console.error('User add error:', error)
             setToast({ message: t.userAddError, type: 'error' })
         }
     }

@@ -48,10 +48,17 @@ export const postsApi = baseApi.injectEndpoints({
                 
                 try {
                     // Backend'den response bekle (ama sadece hata kontrolü için)
-                    await queryFulfilled
-                } catch {
+                    await Promise.race([
+                        queryFulfilled,
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Request timeout')), 8000)
+                        )
+                    ])
+                } catch (error) {
+                    console.error('Add post mutation error:', error)
                     // Hata durumunda optimistic update'i geri al
                     patchResult.undo()
+                    throw error
                 }
             },
         }),

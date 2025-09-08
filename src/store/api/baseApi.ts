@@ -5,6 +5,7 @@ export const baseApi = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
         baseUrl: 'https://jsonplaceholder.typicode.com/',
+        timeout: 10000,
     }),
     tagTypes: ['User', 'Post'],
     endpoints: () => ({}),
