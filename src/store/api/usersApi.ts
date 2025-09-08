@@ -53,35 +53,21 @@ export const usersApi = baseApi.injectEndpoints({
                 body: user,
             }),
             async onQueryStarted(user, { dispatch, queryFulfilled }) {
-                // Optimistically update the cache
+                // Önce optimistic update yap
                 const patchResult = dispatch(
                     usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
-                        const index = draft.findIndex(u => u.id === user.id)
+                        const index = draft.findIndex(u => String(u.id) === String(user.id))
                         if (index !== -1) {
                             draft[index] = user
                         }
                     })
                 )
                 
-                // Also update the individual user cache if it exists
-                let userPatchResult
-                try {
-                    userPatchResult = dispatch(
-                        usersApi.util.updateQueryData('getUserById', user.id, () => {
-                            return user
-                        })
-                    )
-                } catch {
-                    // Cache doesn't exist, that's fine
-                    userPatchResult = { undo: () => {} }
-                }
-                
                 try {
                     await queryFulfilled
                 } catch {
-                    // Hata durumunda optimistic update'i geri al
+                    // API kayıtları için hata durumunda optimistic update'i geri al
                     patchResult.undo()
-                    userPatchResult.undo()
                 }
             },
         }),
@@ -98,14 +84,14 @@ export const usersApi = baseApi.injectEndpoints({
                 // Optimistically update the cache - kalıcı olarak
                 dispatch(
                     usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
-                        return draft.filter(user => user.id !== id)
+                        return draft.filter(user => String(user.id) !== String(id))
                     })
                 )
                 
                 // Cascade delete: Kullanıcının postlarını da sil
                 dispatch(
                     postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
-                        return draft.filter(post => post.userId !== id)
+                        return draft.filter(post => String(post.userId) !== String(id))
                     })
                 )
                 

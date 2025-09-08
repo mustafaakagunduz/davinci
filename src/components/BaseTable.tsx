@@ -29,6 +29,7 @@ export interface BaseTableProps<T> {
     noFilterResultsMessage: (filterValue: string) => string
     loadingMessage: string
     errorMessage: (error: unknown) => string
+    sortOrder?: 'asc' | 'desc'
 }
 
 export function BaseTable<T>({
@@ -49,7 +50,8 @@ export function BaseTable<T>({
     noDataMessage,
     noFilterResultsMessage,
     loadingMessage,
-    errorMessage
+    errorMessage,
+    sortOrder = 'asc'
 }: BaseTableProps<T>) {
     const [currentPage, setCurrentPage] = useState(1)
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
@@ -63,11 +65,21 @@ export function BaseTable<T>({
         isVisible: boolean
     }>({ x: 0, y: 0, item: null, isVisible: false })
 
-    // Filter data
+    // Filter and sort data
     const filteredData = useMemo(() => {
-        if (!data || !filterValue.trim()) return data
-        return filterFunction(data, filterValue)
-    }, [data, filterValue, filterFunction])
+        if (!data) return data
+        
+        let result = filterValue.trim() ? filterFunction(data, filterValue) : data
+        
+        // Sort by id based on sortOrder prop
+        result = [...result].sort((a: T, b: T) => {
+            const aId = Number(getItemId(a))
+            const bId = Number(getItemId(b))
+            return sortOrder === 'desc' ? bId - aId : aId - bId
+        })
+        
+        return result
+    }, [data, filterValue, filterFunction, getItemId, sortOrder])
 
     // Calculate pagination
     const totalItems = filteredData?.length || 0

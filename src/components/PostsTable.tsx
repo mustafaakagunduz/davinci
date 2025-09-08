@@ -132,6 +132,7 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
                 noFilterResultsMessage={(filter) => `${t.noPostsMatching} "${filter}"`}
                 loadingMessage={t.loadingPosts}
                 errorMessage={(err) => `${t.errorLoadingPosts}: ${err && typeof err === 'object' && err !== null && 'status' in err ? (err as {status: unknown}).status : 'Unknown error'}`}
+                sortOrder="desc"
             />
 
             {/* Post Detail Modal */}

@@ -5,11 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal } from './ui/Modal'
 import { useLanguage, type Translations } from '../contexts/LanguageContext'
-import { useUpdatePostMutation } from '../store/api/postsApi'
+import { useUpdatePostMutation, postsApi } from '../store/api/postsApi'
 import { useGetUsersQuery } from '../store/api/usersApi'
 import { useState, useEffect, useMemo } from 'react'
 import { DocumentTextIcon, UserIcon, PencilIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import type { Post } from '../types/post'
+import { useDispatch } from 'react-redux'
+import type { AppDispatch } from '../store'
 
 interface EditPostModalProps {
     isOpen: boolean
@@ -35,6 +37,7 @@ export const EditPostModal = ({ isOpen, onClose, post, isDarkMode = false, onSuc
     const [updatePost, { isLoading }] = useUpdatePostMutation()
     const [userSearch, setUserSearch] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const dispatch = useDispatch<AppDispatch>()
     
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -106,14 +109,30 @@ export const EditPostModal = ({ isOpen, onClose, post, isDarkMode = false, onSuc
         if (!post) return
         
         try {
-            await updatePost({ 
-                id: post.id, 
-                post: {
-                    userId: data.userId,
-                    title: data.title,
-                    body: data.body,
-                }
-            }).unwrap()
+            const updatedPostData = {
+                userId: data.userId,
+                title: data.title,
+                body: data.body,
+            }
+
+            // Yerel kayıtlar (ID > 100) için API çağrısı yapmadan sadece cache'i güncelle
+            if (post.id > 100) {
+                // Manuel cache update using dispatch
+                dispatch(
+                    postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
+                        const index = draft.findIndex(p => String(p.id) === String(post.id))
+                        if (index !== -1) {
+                            draft[index] = { ...draft[index], ...updatedPostData }
+                        }
+                    })
+                )
+            } else {
+                // API kayıtları için normal update
+                await updatePost({ 
+                    id: post.id, 
+                    post: updatedPostData
+                }).unwrap()
+            }
             
             onClose()
             if (onSuccess) {

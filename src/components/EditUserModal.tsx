@@ -5,10 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal } from './ui/Modal'
 import { useLanguage, type Translations } from '../contexts/LanguageContext'
-import { useUpdateUserMutation } from '../store/api/usersApi'
+import { useUpdateUserMutation, usersApi } from '../store/api/usersApi'
 import { useEffect } from 'react'
 import { UserIcon, MapPinIcon, PhoneIcon, GlobeAltIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
 import type { User } from '../types/user'
+import { useDispatch } from 'react-redux'
+import type { AppDispatch } from '../store'
 
 interface EditUserModalProps {
     isOpen: boolean
@@ -47,6 +49,7 @@ type FormData = z.infer<ReturnType<typeof createUserSchema>>
 export const EditUserModal = ({ isOpen, onClose, user, isDarkMode = false, onSuccess }: EditUserModalProps) => {
     const { t } = useLanguage()
     const [updateUser, { isLoading }] = useUpdateUserMutation()
+    const dispatch = useDispatch<AppDispatch>()
 
     const schema = createUserSchema(t)
     
@@ -137,7 +140,21 @@ export const EditUserModal = ({ isOpen, onClose, user, isDarkMode = false, onSuc
                 }
             }
 
-            await updateUser(updatedUser).unwrap()
+            // Yerel kayıtlar (ID > 10) için API çağrısı yapmadan sadece cache'i güncelle
+            if (user.id > 10) {
+                // Manuel cache update using dispatch
+                dispatch(
+                    usersApi.util.updateQueryData('getUsers', undefined, (draft) => {
+                        const index = draft.findIndex(u => String(u.id) === String(user.id))
+                        if (index !== -1) {
+                            draft[index] = updatedUser
+                        }
+                    })
+                )
+            } else {
+                // API kayıtları için normal update
+                await updateUser(updatedUser).unwrap()
+            }
             
             onClose()
             onSuccess?.()

@@ -63,24 +63,21 @@ export const postsApi = baseApi.injectEndpoints({
                 method: 'PUT',
                 body: post,
             }),
-            // Optimistic update kullan
             async onQueryStarted({ id, post }, { dispatch, queryFulfilled }) {
-                // Optimistically update the cache
+                // Önce optimistic update yap
                 const patchResult = dispatch(
                     postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
-                        const postIndex = draft.findIndex(p => p.id === id)
+                        const postIndex = draft.findIndex(p => String(p.id) === String(id))
                         if (postIndex !== -1) {
-                            // Backend'den gelen response yerine frontend'deki veriyi kullan
                             draft[postIndex] = { ...draft[postIndex], ...post }
                         }
                     })
                 )
                 
                 try {
-                    // Backend'den response bekle (ama sadece hata kontrolü için)
                     await queryFulfilled
                 } catch {
-                    // Hata durumunda optimistic update'i geri al
+                    // API kayıtları için hata durumunda optimistic update'i geri al
                     patchResult.undo()
                 }
             },
@@ -98,7 +95,7 @@ export const postsApi = baseApi.injectEndpoints({
                 // Optimistically update the cache - kalıcı olarak
                 dispatch(
                     postsApi.util.updateQueryData('getPosts', undefined, (draft) => {
-                        return draft.filter(post => post.id !== id)
+                        return draft.filter(post => String(post.id) !== String(id))
                     })
                 )
                 try {
