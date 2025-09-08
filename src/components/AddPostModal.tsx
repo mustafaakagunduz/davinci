@@ -120,6 +120,8 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
             
             setToast({ message: t.postAddSuccess, type: 'success' })
             reset()
+            setUserSearch('')
+            setIsDropdownOpen(false)
             onClose()
         } catch {
             setToast({ message: t.postAddError, type: 'error' })
