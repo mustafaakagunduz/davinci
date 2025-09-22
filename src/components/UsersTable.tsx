@@ -21,6 +21,7 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation()
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
     
     // Edit modal state
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -167,6 +168,8 @@ export const UsersTable = ({ filterValue, isDarkMode = false }: UsersTableProps)
                 noFilterResultsMessage={(filter) => `${t.noUsersMatching} "${filter}"`}
                 loadingMessage={t.loadingUsers}
                 errorMessage={(err) => `${t.errorLoadingUsers}: ${err && typeof err === 'object' && err !== null && 'status' in err ? (err as {status: unknown}).status : 'Unknown error'}`}
+                sortOrder={sortOrder}
+                onSortChange={setSortOrder}
             />
 
             {/* User Detail Modal */}

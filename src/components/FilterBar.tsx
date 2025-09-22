@@ -6,7 +6,6 @@ interface FilterBarProps {
     placeholder: string
     isDarkMode?: boolean
 }
-
 export const FilterBar = ({ value, onChange, placeholder, isDarkMode = false }: FilterBarProps) => {
     return (
         <div className="mb-6">

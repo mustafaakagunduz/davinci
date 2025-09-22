@@ -8,7 +8,7 @@ import { useLanguage, type Translations } from '../contexts/LanguageContext'
 import { useAddUserMutation, useGetUsersQuery } from '../store/api/usersApi'
 import { Toast, type ToastType } from './ui/Toast'
 import { useState, useRef, useEffect } from 'react'
-import { UserIcon, MapPinIcon, PhoneIcon, GlobeAltIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
+import { UserIcon, MapPinIcon, PhoneIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
 
 interface AddUserModalProps {
     isOpen: boolean
@@ -268,7 +268,7 @@ export const AddUserModal = ({ isOpen, onClose, isDarkMode = false }: AddUserMod
                                         <label className={`block text-sm font-medium mb-1 transition-colors duration-200 ${
                                             isDarkMode ? 'text-gray-300' : 'text-gray-700'
                                         }`}>
-                                            <GlobeAltIcon className="h-4 w-4 mr-1 inline" />
+                                            
                                             {t.website}
                                         </label>
                                         <input

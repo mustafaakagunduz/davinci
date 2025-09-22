@@ -9,7 +9,7 @@ import { useAddPostMutation, useGetPostsQuery } from '../store/api/postsApi'
 import { useGetUsersQuery } from '../store/api/usersApi'
 import { Toast, type ToastType } from './ui/Toast'
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { DocumentTextIcon, UserIcon, PencilIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
+import { DocumentTextIcon, UserIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 
 interface AddPostModalProps {
     isOpen: boolean
@@ -158,7 +158,7 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
                             isDarkMode ? 'text-gray-100' : 'text-gray-900'
                         }`}>
                             <UserIcon className="h-5 w-5 mr-2" />
-                            {t.selectUser} <span className={`ml-1 text-sm ${isDarkMode ? 'text-red-400' : 'text-red-500'}`}>({t.required})</span>
+                            {t.selectUser} <span className={isDarkMode ? 'text-red-400' : 'text-red-500'}>*</span>
                         </h3>
                         
                         <div className="relative dropdown-container">
@@ -278,7 +278,7 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
                             isDarkMode ? 'text-gray-100' : 'text-gray-900'
                         }`}>
                             <DocumentTextIcon className="h-5 w-5 mr-2" />
-                            {t.postContent} <span className={`ml-1 text-sm ${isDarkMode ? 'text-red-400' : 'text-red-500'}`}>({t.required})</span>
+                            {t.postContent} 
                         </h3>
                         
                         <div className="space-y-4">
@@ -287,7 +287,7 @@ export const AddPostModal = ({ isOpen, onClose, isDarkMode = false }: AddPostMod
                                 <label className={`block text-sm font-medium mb-1 transition-colors duration-200 ${
                                     isDarkMode ? 'text-gray-300' : 'text-gray-700'
                                 }`}>
-                                    <PencilIcon className="h-4 w-4 mr-1 inline" />
+                                    
                                     {t.postTitle} <span className={isDarkMode ? 'text-red-400' : 'text-red-500'}>*</span>
                                 </label>
                                 <input

@@ -30,6 +30,7 @@ export interface BaseTableProps<T> {
     loadingMessage: string
     errorMessage: (error: unknown) => string
     sortOrder?: 'asc' | 'desc'
+    onSortChange?: (sortOrder: 'asc' | 'desc') => void
 }
 
 export function BaseTable<T>({
@@ -51,7 +52,8 @@ export function BaseTable<T>({
     noFilterResultsMessage,
     loadingMessage,
     errorMessage,
-    sortOrder = 'asc'
+    sortOrder = 'asc',
+    onSortChange
 }: BaseTableProps<T>) {
     const [currentPage, setCurrentPage] = useState(1)
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
@@ -213,13 +215,25 @@ export function BaseTable<T>({
                     }`}>
                         <tr>
                             {columns.map((column) => (
-                                <th 
+                                <th
                                     key={column.key}
                                     className={`px-6 py-2 text-center text-base font-normal uppercase tracking-wider transition-colors duration-200 ${
                                         isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                                    } ${
+                                        column.key === 'id' && onSortChange ? 'cursor-pointer hover:bg-opacity-75' : ''
                                     }`}
+                                    onClick={() => {
+                                        if (column.key === 'id' && onSortChange) {
+                                            onSortChange(sortOrder === 'asc' ? 'desc' : 'asc')
+                                        }
+                                    }}
                                 >
                                     {column.label}
+                                    {column.key === 'id' && (
+                                        <span className="ml-1">
+                                            {sortOrder === 'asc' ? '↑' : '↓'}
+                                        </span>
+                                    )}
                                 </th>
                             ))}
                         </tr>

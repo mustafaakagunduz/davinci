@@ -19,6 +19,7 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
     const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation()
     const [selectedPost, setSelectedPost] = useState<Post | null>(null)
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
     
     // Edit modal state
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -132,7 +133,8 @@ export const PostsTable = ({ filterValue, isDarkMode = false }: PostsTableProps)
                 noFilterResultsMessage={(filter) => `${t.noPostsMatching} "${filter}"`}
                 loadingMessage={t.loadingPosts}
                 errorMessage={(err) => `${t.errorLoadingPosts}: ${err && typeof err === 'object' && err !== null && 'status' in err ? (err as {status: unknown}).status : 'Unknown error'}`}
-                sortOrder="desc"
+                sortOrder={sortOrder}
+                onSortChange={setSortOrder}
             />
 
             {/* Post Detail Modal */}
